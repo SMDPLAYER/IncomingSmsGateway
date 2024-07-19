@@ -4,8 +4,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.telephony.SmsMessage;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
@@ -20,7 +23,27 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class SmsBroadcastReceiver extends BroadcastReceiver {
+    private Handler mainHandler = new Handler(Looper.getMainLooper());
 
+    public void someMethod(String msg) {
+        // Running a task on a background thread
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // Background thread work
+
+                // Switch to UI thread
+                mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(context,msg,Toast.LENGTH_SHORT).show();
+
+                        // UI thread work
+                    }
+                });
+            }
+        }).start();
+    }
     private Context context;
 
     @Override
@@ -42,6 +65,7 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
         for (int i = 0; i < pdus.length; i++) {
             messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
             content.append(messages[i].getDisplayMessageBody());
+            someMethod(messages[i].getDisplayMessageBody());
             Log.e("TTT",messages[i].getDisplayMessageBody());
         }
 

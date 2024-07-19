@@ -1,15 +1,22 @@
 package tech.bogomolov.incomingsmsgateway.client;
 
+
+
+
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import tech.bogomolov.incomingsmsgateway.R;
+
 public class HttpTransportService extends IntentService
 {
 	public final static String EXTRA_URL = "net.kzxiv.notifikator.client.http.URL";
@@ -23,9 +30,30 @@ public class HttpTransportService extends IntentService
 	{
 		super("Notifikator HTTP Transport Service");
 	}
+	private Handler mainHandler = new Handler(Looper.getMainLooper());
 
+	public void someMethod(Context context, String msg) {
+		// Running a task on a background thread
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				// Background thread work
+
+				// Switch to UI thread
+				mainHandler.post(new Runnable() {
+					@Override
+					public void run() {
+						Toast.makeText(context,msg,Toast.LENGTH_SHORT).show();
+
+						// UI thread work
+					}
+				});
+			}
+		}).start();
+	}
 	protected void onHandleIntent(Intent intent)
 	{
+		getBaseContext();
 		final String endpointUrl = intent.getStringExtra(EXTRA_URL);
 		final boolean endpointAuth = intent.getBooleanExtra(EXTRA_AUTH, false);
 		final String endpointUsername = intent.getStringExtra(EXTRA_USERNAME);
@@ -43,6 +71,14 @@ public class HttpTransportService extends IntentService
 		if (postData!=null){
 			String str = new String(postData, StandardCharsets.UTF_8); // for UTF-8 encoding
 			Log.e("TTT",str);
+			try {
+				// Call the companion object function from Kotlin
+				App appInstance = App.getInstanceCurrentApp();
+				if (appInstance!=null)
+					someMethod(appInstance.getApplicationContext(),str);
+			}catch (Exception e){
+				Log.e("TTT",e.toString());
+			}
 		}
 
 		try
