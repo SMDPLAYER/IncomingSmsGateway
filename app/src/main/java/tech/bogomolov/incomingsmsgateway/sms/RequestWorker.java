@@ -1,6 +1,7 @@
 package tech.bogomolov.incomingsmsgateway.sms;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.work.Worker;
@@ -37,11 +38,12 @@ public class RequestWorker extends Worker {
         boolean useChunkedMode = getInputData().getBoolean(DATA_CHUNKED_MODE, true);
 
         Request request = new Request(url, text);
-        request.setJsonHeaders(headers);
+//        request.setJsonHeaders(headers);
         request.setIgnoreSsl(ignoreSsl);
         request.setUseChunkedMode(useChunkedMode);
 
         String result = request.execute();
+        Log.e("TTT_RequestWorker", "Result"+result);
 
         if (result.equals(Request.RESULT_RETRY)) {
             return Result.retry();

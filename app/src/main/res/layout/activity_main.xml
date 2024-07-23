@@ -5,16 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.MainActivity">
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/listViewHolder"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
-        <LinearLayout
+    <LinearLayout
             android:id="@+id/holderHandlers"
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:paddingTop="20dp"
-            android:paddingBottom="100dp"
+            android:paddingTop="10dp"
             android:layout_height="wrap_content">
             <LinearLayout
                 android:id="@+id/openNotificationAccess"
@@ -47,11 +42,13 @@
                 android:id="@+id/info_notice"
                 />
             <ListView
+                android:clipToPadding="false"
+                android:paddingBottom="100dp"
+                android:layout_weight="1"
                 android:id="@+id/listView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="0dp" />
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnAdd"
         android:layout_width="wrap_content"

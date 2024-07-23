@@ -20,11 +20,13 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
+import androidx.lifecycle.Observer;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import org.json.JSONException;
@@ -343,7 +345,7 @@ public class NotificationService extends NotificationListenerService
 						)
 						.setInputData(data)
 						.build();
-
+		Log.e("TTT_REQUEST_PUSH",workRequest.toString());
 		WorkManager
 				.getInstance(context)
 				.enqueue(workRequest);

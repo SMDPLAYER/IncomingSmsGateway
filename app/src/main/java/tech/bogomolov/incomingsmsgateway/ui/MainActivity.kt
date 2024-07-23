@@ -2,14 +2,17 @@ package tech.bogomolov.incomingsmsgateway.ui
 
 import android.Manifest
 import android.app.ActivityManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.text.TextUtils
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -18,6 +21,8 @@ import tech.bogomolov.incomingsmsgateway.R
 import tech.bogomolov.incomingsmsgateway.sms.ForwardingConfig
 import tech.bogomolov.incomingsmsgateway.sms.ListAdapter
 import tech.bogomolov.incomingsmsgateway.sms.SmsReceiverService
+import java.net.MalformedURLException
+import java.net.URL
 
 class MainActivity : AppCompatActivity() {
     private var listAdapter: ListAdapter? = null
@@ -53,9 +58,67 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
             startActivity(intent)
         }
-
+        saveTestConfigs()
     }
 
+    fun saveTestConfigs(){
+//        val configSberBankPUSH = populateConfig(
+//            this,
+//            ForwardingConfig(this),
+//            "org.telegram.messenger",
+//           "+998913684839",
+//            "http://trade.confettipay.com/webhook/set-sms-pochtabank",
+//            "ZJoXveLFpM6jjaiEX1bQtieWPTqEoEdp",
+//        )
+//        configSberBankPUSH?.save()
+//        val configSberBankSMS = populateConfig(
+//            this,
+//            ForwardingConfig(this),
+//            "+998913684839",
+//           "+998913684839",
+//            "http://trade.confettipay.com/webhook/set-sms-sber",
+//            "mlJRP6vXBhT_vPyMP_N47-b_8ScXB3kG",
+//        )
+//        configSberBankSMS?.save()
+    }
+
+    fun populateConfig(
+        context: Context,
+        config: ForwardingConfig,
+        from:String,
+        number:String,
+        url:String,
+        token:String
+    ): ForwardingConfig? {
+        var sender = from
+        if (TextUtils.isEmpty(sender)) {
+            sender = "*"
+        }
+
+        if (TextUtils.isEmpty(url)) {
+            Toast.makeText(context,context.getString(R.string.error_empty_url), Toast.LENGTH_SHORT).show()
+            return null
+        }
+        try {
+            URL(url)
+        } catch (e: MalformedURLException) {
+            Toast.makeText(context,context.getString(R.string.error_wrong_url), Toast.LENGTH_SHORT).show()
+            return null
+        }
+
+        config.simSlot = 0//Any sim
+
+
+        config.sender = sender
+        config.url = url
+        config.template = "{\n  \"from\":\"%from%\",\n  \"text\":\"%text%\",\n  \"iso\":\"%iso%\",\n  \"token\":\"$token\",\n  \"number\":\"$number\"\n}"
+//        config.headers = ""
+        config.retriesNumber = 10
+        config.ignoreSsl = true
+        config.chunkedMode = true
+
+        return config
+    }
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,

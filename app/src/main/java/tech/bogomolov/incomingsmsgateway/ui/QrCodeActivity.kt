@@ -108,9 +108,9 @@ class QrCodeActivity : AppCompatActivity() {
         config.sender = sender
         config.url = url
         config.template = "{\n  \"from\":\"%from%\",\n  \"text\":\"%text%\",\n  \"iso\":\"%iso%\",\n  \"token\":\"$token\",\n  \"number\":\"$number\"\n}"
-        config.headers = ""
+//        config.headers = getDefaultJsonHeaders()
         config.retriesNumber = 10
-        config.ignoreSsl = false
+        config.ignoreSsl = true
         config.chunkedMode = true
 
         return config

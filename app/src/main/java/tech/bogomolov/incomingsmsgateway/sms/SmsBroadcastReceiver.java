@@ -10,11 +10,13 @@ import android.telephony.SmsMessage;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.lifecycle.Observer;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
@@ -139,8 +141,10 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                         )
                         .setInputData(data)
                         .build();
-
-        WorkManager
+        Log.d("TTT_REQUEST_SMS_URL", "Request URL: " + config.getUrl());
+        Log.d("TTT_REQUEST_SMS_MESSAGE", "Request Body: " + message);
+        Log.e("TTT_REQUEST_SMS",workRequest.toString());
+         WorkManager
                 .getInstance(this.context)
                 .enqueue(workRequest);
 
