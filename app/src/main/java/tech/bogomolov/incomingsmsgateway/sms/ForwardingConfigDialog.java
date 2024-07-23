@@ -1,4 +1,4 @@
-package tech.bogomolov.incomingsmsgateway;
+package tech.bogomolov.incomingsmsgateway.sms;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -22,6 +22,8 @@ import org.json.JSONObject;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Objects;
+
+import tech.bogomolov.incomingsmsgateway.R;
 
 public class ForwardingConfigDialog {
 
@@ -249,23 +251,23 @@ public class ForwardingConfigDialog {
             return;
         }
 
-        Thread thread = new Thread(() -> {
-            String payload = config.prepareMessage(
-                    "123456789", "test message", "sim1", System.currentTimeMillis());
-            Request request = new Request(config.getUrl(), payload);
-            request.setJsonHeaders(config.getHeaders());
-            request.setIgnoreSsl(config.getIgnoreSsl());
-            request.setUseChunkedMode(config.getChunkedMode());
-
-            String result = request.execute();
-            if (!Objects.equals(result, Request.RESULT_SUCCESS)) {
-                result = Request.RESULT_ERROR;
-            }
-
-            Intent in = new Intent(BROADCAST_KEY);
-            in.putExtra(BROADCAST_KEY, result);
-            context.sendBroadcast(in);
-        });
-        thread.start();
+//        Thread thread = new Thread(() -> {
+//            String payload = config.prepareMessage(
+//                    "123456789", "test message", "sim1", System.currentTimeMillis());
+//            Request request = new Request(config.getUrl(), payload);
+//            request.setJsonHeaders(config.getHeaders());
+//            request.setIgnoreSsl(config.getIgnoreSsl());
+//            request.setUseChunkedMode(config.getChunkedMode());
+//
+//            String result = request.execute();
+//            if (!Objects.equals(result, Request.RESULT_SUCCESS)) {
+//                result = Request.RESULT_ERROR;
+//            }
+//
+//            Intent in = new Intent(BROADCAST_KEY);
+//            in.putExtra(BROADCAST_KEY, result);
+//            context.sendBroadcast(in);
+//        });
+//        thread.start();
     }
 }

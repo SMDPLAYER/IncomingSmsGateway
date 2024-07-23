@@ -1,4 +1,4 @@
-package tech.bogomolov.incomingsmsgateway.client;
+package tech.bogomolov.incomingsmsgateway.notification;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -8,7 +8,7 @@ import android.util.Base64;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import tech.bogomolov.incomingsmsgateway.R;
+
 final class BitmapHelper
 {
 	public final static Bitmap getPackageIcon(Context context, String packageName, int id)

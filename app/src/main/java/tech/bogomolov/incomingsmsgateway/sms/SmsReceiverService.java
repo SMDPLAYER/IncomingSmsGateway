@@ -1,4 +1,4 @@
-package tech.bogomolov.incomingsmsgateway;
+package tech.bogomolov.incomingsmsgateway.sms;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -12,6 +12,8 @@ import android.os.IBinder;
 import android.provider.Telephony;
 
 import androidx.annotation.Nullable;
+
+import tech.bogomolov.incomingsmsgateway.R;
 
 public class SmsReceiverService extends Service {
 
@@ -42,13 +44,14 @@ public class SmsReceiverService extends Service {
             NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID,
                     getText(R.string.notification_channel),
-                    NotificationManager.IMPORTANCE_NONE);
+                    NotificationManager.IMPORTANCE_HIGH);
 
             notificationManager.createNotificationChannel(channel);
 
             Notification notification =
                     new Notification.Builder(this, CHANNEL_ID)
                             .setSmallIcon(R.drawable.ic_f)
+                            .setContentText("SMS Handler service is running")
                             .setColor(getColor(R.color.colorPrimary))
                             .setOngoing(true)
                             .build();

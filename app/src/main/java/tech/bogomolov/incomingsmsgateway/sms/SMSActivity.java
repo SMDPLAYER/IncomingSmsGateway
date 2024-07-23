@@ -1,4 +1,4 @@
-package tech.bogomolov.incomingsmsgateway;
+package tech.bogomolov.incomingsmsgateway.sms;
 
 import android.Manifest;
 import android.app.ActivityManager;
@@ -29,9 +29,11 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import tech.bogomolov.incomingsmsgateway.client.ConfigurationActivity;
+import tech.bogomolov.incomingsmsgateway.BuildConfig;
+import tech.bogomolov.incomingsmsgateway.R;
+import tech.bogomolov.incomingsmsgateway.notification.ConfigurationActivity;
 
-public class MainActivity extends AppCompatActivity {
+public class SMSActivity extends AppCompatActivity {
 
     private Context context;
     private ListAdapter listAdapter;
@@ -41,10 +43,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_sms);
 
         findViewById(R.id.btnNotification).setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ConfigurationActivity.class);
+            Intent intent = new Intent(SMSActivity.this, ConfigurationActivity.class);
             startActivity(intent);
         });
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED) {
@@ -157,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isServiceRunning() {
         ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (tech.bogomolov.incomingsmsgateway.SmsReceiverService.class.getName().equals(service.service.getClassName())) {
+            if (SmsReceiverService.class.getName().equals(service.service.getClassName())) {
                 return true;
             }
         }

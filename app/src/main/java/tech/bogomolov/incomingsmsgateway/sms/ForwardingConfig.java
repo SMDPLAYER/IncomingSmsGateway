@@ -1,4 +1,4 @@
-package tech.bogomolov.incomingsmsgateway;
+package tech.bogomolov.incomingsmsgateway.sms;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -8,10 +8,15 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Map;
 import java.util.Random;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
+
+import tech.bogomolov.incomingsmsgateway.R;
 
 public class ForwardingConfig {
     final private Context context;
@@ -234,15 +239,32 @@ public class ForwardingConfig {
         editor.remove(this.getKey());
         editor.commit();
     }
+    public static String convertTimestampToDateString(long timestamp) {
+        // Create a date object from the timestamp
+        Date date = new Date(timestamp);
 
-    public String prepareMessage(String from, String content, String sim, long timeStamp) {
+        // Create a SimpleDateFormat instance with the desired format
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:00.000'Z'");
+
+        // Set the time zone to UTC
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        // Format the date object to the desired format and return the string
+        return sdf.format(date);
+    }
+
+    public String prepareMessage(String from, String content, long timeStamp) {
+        String formattedDate = convertTimestampToDateString(timeStamp);
         return this.getTemplate()
                 .replaceAll("%from%", from)
-                .replaceAll("%sentStamp%", String.valueOf(timeStamp))
-                .replaceAll("%receivedStamp%", String.valueOf(System.currentTimeMillis()))
-                .replaceAll("%sim%", sim)
                 .replaceAll("%text%",
-                        Matcher.quoteReplacement(StringEscapeUtils.escapeJson(content)));
+                        Matcher.quoteReplacement(StringEscapeUtils.escapeJson(content)))
+                .replaceAll("%iso%", formattedDate)
+//                .replaceAll("%token%", token)
+//                .replaceAll("%number%", number)
+//                .replaceAll("%receivedStamp%", String.valueOf(System.currentTimeMillis()))
+//                .replaceAll("%sim%", sim)
+                ;
     }
 
     private static SharedPreferences getPreference(Context context) {

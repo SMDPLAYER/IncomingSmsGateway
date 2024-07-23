@@ -1,11 +1,12 @@
-package tech.bogomolov.incomingsmsgateway.client;
+package tech.bogomolov.incomingsmsgateway.notification;
 
 
 
 import android.app.Notification;
 import tech.bogomolov.incomingsmsgateway.R;
+import tech.bogomolov.incomingsmsgateway.sms.ForwardingConfig;
+import tech.bogomolov.incomingsmsgateway.sms.RequestWorker;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -19,11 +20,20 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
+import androidx.work.BackoffPolicy;
+import androidx.work.Constraints;
+import androidx.work.Data;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class NotificationService extends NotificationListenerService
 {
@@ -67,53 +77,66 @@ public class NotificationService extends NotificationListenerService
 			}
 		}
 
-		final String protocol = prefs.getString(res.getString(R.string.key_protocol), null);
-		final String endpointUrl = prefs.getString(res.getString(R.string.key_endpointurl), null);
+//		final String protocol = prefs.getString(res.getString(R.string.key_protocol), null);
+//		final String endpointUrl = prefs.getString(res.getString(R.string.key_endpointurl), null);
 
-		if (endpointUrl == null || "".equals(endpointUrl))
-		{
-			Log.e("Notifikator", "No endpoint specified.");
-			return;
-		}
+//		if (endpointUrl == null || "".equals(endpointUrl))
+//		{
+//			Log.e("Notifikator", "No endpoint specified.");
+//			return;
+//		}
 
-		final boolean endpointAuth = prefs.getBoolean(res.getString(R.string.key_endpointauth), false);
-		final String endpointUsername = prefs.getString(res.getString(R.string.key_endpointuser), null);
-		final String endpointPassword = prefs.getString(res.getString(R.string.key_endpointpw), null);
+//		final boolean endpointAuth = prefs.getBoolean(res.getString(R.string.key_endpointauth), false);
+//		final String endpointUsername = prefs.getString(res.getString(R.string.key_endpointuser), null);
+//		final String endpointPassword = prefs.getString(res.getString(R.string.key_endpointpw), null);
 
 		String packageName = sbn.getPackageName();
 		Notification notification = sbn.getNotification();
 
-		Object[] payload;
-		if (res.getString(R.string.protocol_kodi).equals(protocol))
-			payload = getPayloadKodi(packageName, notification);
-		else if (res.getString(R.string.protocol_kodi_addon).equals(protocol))
-			payload = getPayloadKodiAddon(packageName, notification);
-		else if (res.getString(R.string.protocol_adtv).equals(protocol))
-			payload = getPayloadAdtv(packageName, notification);
-		else if (res.getString(R.string.protocol_json).equals(protocol))
-			payload = getPayloadJson(packageName, notification);
-		else
-			payload = null;
+//		Object[] payload;
+//		if (res.getString(R.string.protocol_kodi).equals(protocol))
+//			payload = getPayloadKodi(packageName, notification);
+//		else if (res.getString(R.string.protocol_kodi_addon).equals(protocol))
+//			payload = getPayloadKodiAddon(packageName, notification);
+//		else if (res.getString(R.string.protocol_adtv).equals(protocol))
+//			payload = getPayloadAdtv(packageName, notification);
+//		else if (res.getString(R.string.protocol_json).equals(protocol))
+//			payload = getPayloadJson(packageName, notification);
+//		else
+//			payload = null;
 
-		if (payload == null)
-		{
-			Log.e("Notifikator", String.format("No payload or unknown protocol \"%s\".", protocol));
-			return;
+//		if (payload == null)
+//		{
+//			Log.e("Notifikator", String.format("No payload or unknown protocol \"%s\".", protocol));
+//			return;
+//		}
+		final String from = notification.extras.getString(Notification.EXTRA_TITLE);
+		final String text = notification.extras.getString(Notification.EXTRA_TEXT);
+
+		ArrayList<ForwardingConfig> configs = ForwardingConfig.getAll(this);
+		String sender = packageName;
+		String asterisk = getString(R.string.asterisk);
+		for (ForwardingConfig config : configs) {
+			if (!sender.equals(config.getSender()) && !config.getSender().equals(asterisk)) {
+				continue;
+			}
+
+			callWebHook(this,config, from, text, System.currentTimeMillis());
 		}
 
-		Intent i = new Intent(this, HttpTransportService.class);
-		i.putExtra(HttpTransportService.EXTRA_URL, endpointUrl);
-		i.putExtra(HttpTransportService.EXTRA_AUTH, endpointAuth);
-		if (endpointAuth)
-		{
-			i.putExtra(HttpTransportService.EXTRA_USERNAME, endpointUsername);
-			i.putExtra(HttpTransportService.EXTRA_PASSWORD, endpointPassword);
-		}
-
-		i.putExtra(HttpTransportService.EXTRA_PAYLOAD_TYPE, (String)payload[0]);
-		i.putExtra(HttpTransportService.EXTRA_PAYLOAD, (byte[])payload[1]);
-
-		startService(i);
+//		Intent i = new Intent(this, HttpTransportService.class);
+//		i.putExtra(HttpTransportService.EXTRA_URL, endpointUrl);
+//		i.putExtra(HttpTransportService.EXTRA_AUTH, endpointAuth);
+//		if (endpointAuth)
+//		{
+//			i.putExtra(HttpTransportService.EXTRA_USERNAME, endpointUsername);
+//			i.putExtra(HttpTransportService.EXTRA_PASSWORD, endpointPassword);
+//		}
+//
+//		i.putExtra(HttpTransportService.EXTRA_PAYLOAD_TYPE, (String)payload[0]);
+//		i.putExtra(HttpTransportService.EXTRA_PAYLOAD, (byte[])payload[1]);
+//
+//		startService(i);
 	}
 
 	public void onNotificationRemoved(StatusBarNotification sbn)
@@ -253,7 +276,7 @@ public class NotificationService extends NotificationListenerService
 		return new Object[] { "multipart/form-data; boundary=" + separator, result };
 	}
 
-	private final Object[] getPayloadJson(String packageName, Notification notification)
+	private final String getPayloadJson(String packageName, Notification notification)
 	{
 		final String title = notification.extras.getString(Notification.EXTRA_TITLE);
 		final String text = notification.extras.getString(Notification.EXTRA_TEXT);
@@ -283,6 +306,47 @@ public class NotificationService extends NotificationListenerService
 		}
 		catch (JSONException ex) {}
 
-		return new Object[] { "application/json", result.toString().getBytes() };
+		return result.toString();
+	}
+
+
+
+	protected void callWebHook(Context context,ForwardingConfig config, String sender,
+							   String content, long timeStamp) {
+
+		String message = config.prepareMessage(
+				sender,
+				content,
+				timeStamp
+		);
+
+		Constraints constraints = new Constraints.Builder()
+				.setRequiredNetworkType(NetworkType.CONNECTED)
+				.build();
+
+		Data data = new Data.Builder()
+				.putString(RequestWorker.DATA_URL, config.getUrl())
+				.putString(RequestWorker.DATA_TEXT, message)
+				.putString(RequestWorker.DATA_HEADERS, config.getHeaders())
+				.putBoolean(RequestWorker.DATA_IGNORE_SSL, config.getIgnoreSsl())
+				.putBoolean(RequestWorker.DATA_CHUNKED_MODE, config.getChunkedMode())
+				.putInt(RequestWorker.DATA_MAX_RETRIES, config.getRetriesNumber())
+				.build();
+
+		WorkRequest workRequest =
+				new OneTimeWorkRequest.Builder(RequestWorker.class)
+						.setConstraints(constraints)
+						.setBackoffCriteria(
+								BackoffPolicy.EXPONENTIAL,
+								OneTimeWorkRequest.MIN_BACKOFF_MILLIS,
+								TimeUnit.MILLISECONDS
+						)
+						.setInputData(data)
+						.build();
+
+		WorkManager
+				.getInstance(context)
+				.enqueue(workRequest);
+
 	}
 }

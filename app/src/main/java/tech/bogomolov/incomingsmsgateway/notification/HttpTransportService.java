@@ -1,4 +1,4 @@
-package tech.bogomolov.incomingsmsgateway.client;
+package tech.bogomolov.incomingsmsgateway.notification;
 
 
 
@@ -89,14 +89,14 @@ public class HttpTransportService extends IntentService
 			connection.setRequestMethod("POST");
 			connection.setRequestProperty("Content-Type", contentType);
 
-			if (endpointAuth && endpointUsername != null && endpointPassword != null)
-			{
-				connection.setRequestProperty("Authorization",
-					String.format("Basic %s",
-						Base64.encodeToString(
-							String.format("%s:%s", endpointUsername, endpointPassword).getBytes(),
-							Base64.NO_WRAP)));
-			}
+//			if (endpointAuth && endpointUsername != null && endpointPassword != null)
+//			{
+//				connection.setRequestProperty("Authorization",
+//					String.format("Basic %s",
+//						Base64.encodeToString(
+//							String.format("%s:%s", endpointUsername, endpointPassword).getBytes(),
+//							Base64.NO_WRAP)));
+//			}
 
 			connection.setConnectTimeout(2500);
 			connection.setReadTimeout(5000);

@@ -1,4 +1,4 @@
-package tech.bogomolov.incomingsmsgateway.client;
+package tech.bogomolov.incomingsmsgateway.notification;
 
 import android.app.Notification;
 import android.app.NotificationManager;

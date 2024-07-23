@@ -1,4 +1,4 @@
-package tech.bogomolov.incomingsmsgateway;
+package tech.bogomolov.incomingsmsgateway.sms;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -11,6 +11,8 @@ import android.widget.TextView;
 import androidx.appcompat.widget.SwitchCompat;
 
 import java.util.ArrayList;
+
+import tech.bogomolov.incomingsmsgateway.R;
 
 public class ListAdapter extends ArrayAdapter<ForwardingConfig> {
     final private ArrayList<ForwardingConfig> dataSet;

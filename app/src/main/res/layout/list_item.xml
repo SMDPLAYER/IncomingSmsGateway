@@ -142,6 +142,7 @@
                 android:layout_alignParentRight="true"
                 android:height="10dp"
                 android:minHeight="32dp"
+                android:visibility="gone"
                 android:text="@string/btn_edit"
                 android:textAllCaps="true"
                 android:textColor="@color/colorPrimary"

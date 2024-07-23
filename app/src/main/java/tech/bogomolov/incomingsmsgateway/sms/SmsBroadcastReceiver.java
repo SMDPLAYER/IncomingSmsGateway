@@ -1,4 +1,4 @@
-package tech.bogomolov.incomingsmsgateway;
+package tech.bogomolov.incomingsmsgateway.sms;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -21,6 +21,8 @@ import androidx.work.WorkRequest;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import tech.bogomolov.incomingsmsgateway.R;
 
 public class SmsBroadcastReceiver extends BroadcastReceiver {
     private Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -83,9 +85,9 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                 continue;
             }
 
-            if (!config.getIsSmsEnabled()) {
-                continue;
-            }
+//            if (!config.getIsSmsEnabled()) {
+//                continue;
+//            }
 
             int slotId = this.detectSim(bundle) + 1;
             String slotName = "undetected";
@@ -108,7 +110,11 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
     protected void callWebHook(ForwardingConfig config, String sender, String slotName,
                                String content, long timeStamp) {
 
-        String message = config.prepareMessage(sender, content, slotName, timeStamp);
+        String message = config.prepareMessage(
+                sender,
+                content,
+                timeStamp
+        );
 
         Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)

@@ -1,10 +1,10 @@
-package tech.bogomolov.incomingsmsgateway.client;
+package tech.bogomolov.incomingsmsgateway.notification;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Random;
-import tech.bogomolov.incomingsmsgateway.R;
+
 final class HttpHelper
 {
 	private static final char[] HEXCHARS = new char[]

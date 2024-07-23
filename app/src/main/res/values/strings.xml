@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">Sms Forwarder</string>
-    <string name="permission_needed">Set permission to access SMS to use this app.</string>
+    <string name="app_name">Sms Forwarder And Notification handler</string>
+    <string name="permission_needed">Set permission to access SMS , Camera and Notifications to use this app.</string>
     <string name="input_phone">66123456789</string>
     <string name="input_url">https://example.com</string>
     <string name="label_advanced">Advanced parameters</string>
@@ -37,7 +37,7 @@
     <string name="asterisk">*</string>
     <string name="any">Any</string>
     <string name="confirm_delete">Do you really want to delete "%s" record?</string>
-    <string name="notification_channel">Default</string>
+    <string name="notification_channel">SMS Handler</string>
     <string name="menu_syslog">Syslog</string>
 
     <string name="key_enabled">Enabled</string>
