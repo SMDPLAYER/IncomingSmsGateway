@@ -2,6 +2,7 @@ package tech.bogomolov.incomingsmsgateway.notification;
 
 
 
+import static tech.bogomolov.incomingsmsgateway.data.ApiServiceKt.callWebHook;
 import android.app.Notification;
 import tech.bogomolov.incomingsmsgateway.R;
 import tech.bogomolov.incomingsmsgateway.sms.ForwardingConfig;
@@ -123,7 +124,7 @@ public class NotificationService extends NotificationListenerService
 				continue;
 			}
 
-			callWebHook(this,config, from, text, System.currentTimeMillis());
+			callWebHook(config, from, text, System.currentTimeMillis(),this);
 		}
 
 //		Intent i = new Intent(this, HttpTransportService.class);
@@ -313,7 +314,7 @@ public class NotificationService extends NotificationListenerService
 
 
 
-	protected void callWebHook(Context context,ForwardingConfig config, String sender,
+	protected void callWebHook1(Context context,ForwardingConfig config, String sender,
 							   String content, long timeStamp) {
 
 		String message = config.prepareMessage(
@@ -349,6 +350,20 @@ public class NotificationService extends NotificationListenerService
 		WorkManager
 				.getInstance(context)
 				.enqueue(workRequest);
-
+		// Observe the WorkInfo for the WorkRequest
+//		WorkManager.getInstance(this)
+//				.getWorkInfoByIdLiveData(workRequest.getId())
+//				.observeForever( new Observer<WorkInfo>() {
+//					@Override
+//					public void onChanged(WorkInfo workInfo) {
+//						if (workInfo != null && workInfo.getState().isFinished()) {
+//							// Get the result data
+//							Data outputData = workInfo.getOutputData();
+//							String responseBody = outputData.getString("response_body");
+//							Log.d("TTT_RequestWorker_PUSH", "Response Body: " + responseBody);
+//							// Handle the result here
+//						}
+//					}
+//				});
 	}
 }

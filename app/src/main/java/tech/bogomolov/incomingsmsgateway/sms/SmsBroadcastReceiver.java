@@ -1,5 +1,7 @@
 package tech.bogomolov.incomingsmsgateway.sms;
 
+import static tech.bogomolov.incomingsmsgateway.data.ApiServiceKt.callWebHook;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -105,11 +107,16 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                 slotName = "sim" + slotId;
             }
 
-            this.callWebHook(config, sender, slotName, content.toString(), messages[0].getTimestampMillis());
+            callWebHook(config,
+                    sender,
+                    content.toString(),
+                    messages[0].getTimestampMillis(),
+                    context
+            );
         }
     }
 
-    protected void callWebHook(ForwardingConfig config, String sender, String slotName,
+    protected void callWebHook1(ForwardingConfig config, String sender, String slotName,
                                String content, long timeStamp) {
 
         String message = config.prepareMessage(
@@ -147,6 +154,23 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
          WorkManager
                 .getInstance(this.context)
                 .enqueue(workRequest);
+                // Observe the WorkInfo for the WorkRequest
+//        WorkManager.getInstance(this.context)
+//                .getWorkInfoByIdLiveData(workRequest.getId())
+//                .observeForever( new Observer<WorkInfo>() {
+//                    @Override
+//                    public void onChanged(WorkInfo workInfo) {
+//                        if (workInfo != null && workInfo.getState().isFinished()) {
+//                            // Get the result data
+//                            Data outputData = workInfo.getOutputData();
+//
+//                            String responseBody = outputData.getString("response_body");
+//                            Log.d("TTT_RequestWorker", "Response Body: " + responseBody);
+//
+//                            // Handle the result here
+//                        }
+//                    }
+//                });
 
     }
 
