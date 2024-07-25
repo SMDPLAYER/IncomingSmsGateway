@@ -14,6 +14,7 @@ import com.budiyev.android.codescanner.ScanMode
 import org.json.JSONObject
 import tech.bogomolov.incomingsmsgateway.R
 import tech.bogomolov.incomingsmsgateway.sms.ForwardingConfig
+import tech.bogomolov.incomingsmsgateway.sms.ForwardingConfig.getDefaultJsonHeaders
 import java.net.MalformedURLException
 import java.net.URL
 
@@ -48,7 +49,7 @@ class QrCodeActivity : AppCompatActivity() {
                        qrData.getString("url"),
                        qrData.getString("token"),
                    )
-                   config?.save()
+                   config?.save(it.text.hashCode().toString())
 
                }else{
                    val config = populateConfig(
@@ -59,7 +60,7 @@ class QrCodeActivity : AppCompatActivity() {
                        qrData.getString("url"),
                        qrData.getString("token"),
                    )
-                   config?.save()
+                   config?.save(it.text.hashCode().toString())
                }
 
                 finish()
@@ -108,7 +109,7 @@ class QrCodeActivity : AppCompatActivity() {
         config.sender = sender
         config.url = url
         config.template = "{\n  \"from\":\"%from%\",\n  \"text\":\"%text%\",\n  \"iso\":\"%iso%\",\n  \"token\":\"$token\",\n  \"number\":\"$number\"\n}"
-//        config.headers = getDefaultJsonHeaders()
+        config.headers = getDefaultJsonHeaders()
         config.retriesNumber = 10
         config.ignoreSsl = true
         config.chunkedMode = true

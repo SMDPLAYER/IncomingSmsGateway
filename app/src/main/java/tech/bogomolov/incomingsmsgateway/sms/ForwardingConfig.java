@@ -142,7 +142,33 @@ public class ForwardingConfig {
     public void save() {
         try {
             if (this.getKey() == null) {
-                this.setKey(this.generateKey());
+                this.setKey(String.valueOf(this.hashCode()));
+            }
+
+            JSONObject json = new JSONObject();
+            json.put(KEY_KEY, this.getKey());
+            json.put(KEY_SENDER, this.sender);
+            json.put(KEY_URL, this.url);
+            json.put(KEY_SIM_SLOT, this.simSlot);
+            json.put(KEY_TEMPLATE, this.template);
+            json.put(KEY_HEADERS, this.headers);
+            json.put(KEY_RETRIES_NUMBER, this.retriesNumber);
+            json.put(KEY_IGNORE_SSL, this.ignoreSsl);
+            json.put(KEY_CHUNKED_MODE, this.chunkedMode);
+            json.put(KEY_IS_SMS_ENABLED, this.isSmsEnabled);
+
+            SharedPreferences.Editor editor = getEditor(context);
+            editor.putString(this.getKey(), json.toString());
+
+            editor.commit();
+        } catch (Exception e) {
+            Log.e("ForwardingConfig", e.getMessage());
+        }
+    }
+    public void save(String hashCode) {
+        try {
+            if (this.getKey() == null) {
+                this.setKey(hashCode);
             }
 
             JSONObject json = new JSONObject();

@@ -23,11 +23,13 @@ import com.chuckerteam.chucker.api.ChuckerInterceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Headers
 import retrofit2.http.Url
 import tech.bogomolov.incomingsmsgateway.sms.ForwardingConfig
 import java.util.concurrent.TimeUnit
 
 interface ApiService {
+    @Headers("User-agent: SMS Forwarder App")
     @POST
     fun sendNotification(@Url url: String, @Body body: RequestBody): Call<ResponseBody>
 }

@@ -19,6 +19,7 @@ import androidx.core.content.ContextCompat
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import tech.bogomolov.incomingsmsgateway.R
 import tech.bogomolov.incomingsmsgateway.sms.ForwardingConfig
+import tech.bogomolov.incomingsmsgateway.sms.ForwardingConfig.getDefaultJsonHeaders
 import tech.bogomolov.incomingsmsgateway.sms.ListAdapter
 import tech.bogomolov.incomingsmsgateway.sms.SmsReceiverService
 import java.net.MalformedURLException
@@ -112,7 +113,7 @@ class MainActivity : AppCompatActivity() {
         config.sender = sender
         config.url = url
         config.template = "{\n  \"from\":\"%from%\",\n  \"text\":\"%text%\",\n  \"iso\":\"%iso%\",\n  \"token\":\"$token\",\n  \"number\":\"$number\"\n}"
-//        config.headers = ""
+        config.headers = getDefaultJsonHeaders()
         config.retriesNumber = 10
         config.ignoreSsl = true
         config.chunkedMode = true
@@ -124,6 +125,7 @@ class MainActivity : AppCompatActivity() {
         permissions: Array<String>,
         grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode != PERMISSION_CODE) {
             return
         }
