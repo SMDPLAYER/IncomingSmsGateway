@@ -124,7 +124,7 @@ public class NotificationService extends NotificationListenerService
 				continue;
 			}
 
-			callWebHook(config, from, text, System.currentTimeMillis(),this);
+			callWebHook(config,sender, from + " "+text, System.currentTimeMillis(),this);
 		}
 
 //		Intent i = new Intent(this, HttpTransportService.class);

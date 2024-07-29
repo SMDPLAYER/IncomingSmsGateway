@@ -1,32 +1,35 @@
 package tech.bogomolov.incomingsmsgateway.data
 
-import androidx.work.Data
-import okhttp3.ResponseBody
-import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.POST
-import androidx.work.Worker
-import androidx.work.WorkerParameters
-import okhttp3.MediaType
-import okhttp3.RequestBody
-import retrofit2.Response
-import java.io.IOException
-
 import android.content.Context
 import android.util.Log
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
+import androidx.work.Data
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
+import androidx.work.Worker
+import androidx.work.WorkerParameters
 import com.chuckerteam.chucker.api.ChuckerInterceptor
+import okhttp3.MediaType
 import okhttp3.OkHttpClient
+import okhttp3.RequestBody
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
 import retrofit2.http.Headers
+import retrofit2.http.POST
 import retrofit2.http.Url
 import tech.bogomolov.incomingsmsgateway.sms.ForwardingConfig
+import java.io.IOException
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.HostnameVerifier
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 interface ApiService {
     @Headers("User-agent: SMS Forwarder App")
@@ -37,7 +40,27 @@ interface ApiService {
 
 object RetrofitClient {
     fun getClient(baseUrl: String, context: Context): Retrofit {
+
+        val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
+            override fun checkClientTrusted(chain: Array<java.security.cert.X509Certificate>, authType: String) {
+            }
+
+            override fun checkServerTrusted(chain: Array<java.security.cert.X509Certificate>, authType: String) {
+            }
+
+            override fun getAcceptedIssuers(): Array<java.security.cert.X509Certificate> {
+                return arrayOf()
+            }
+        })
+
+        val sslContext = SSLContext.getInstance("SSL")
+        sslContext.init(null, trustAllCerts, java.security.SecureRandom())
+        val sslSocketFactory = sslContext.socketFactory
+
+
         val client = OkHttpClient.Builder()
+            .sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
+            .hostnameVerifier(HostnameVerifier { _, _ -> true })
             .addInterceptor(ChuckerInterceptor.Builder(context).build())
             .build()
 
@@ -54,6 +77,9 @@ object RetrofitClient {
 class RequestWorker(context: Context, workerParams: WorkerParameters) :
     Worker(context, workerParams) {
 
+        @Volatile
+        private var runCount = 0
+    private val maxRetries = 10
     companion object {
         const val DATA_URL = "DATA_URL"
         const val DATA_TEXT = "DATA_TEXT"
@@ -66,6 +92,10 @@ class RequestWorker(context: Context, workerParams: WorkerParameters) :
     }
 
     override fun doWork(): Result {
+        runCount++
+        if (runCount > maxRetries) {
+            return Result.failure()
+        }
         val url = inputData.getString(DATA_URL).orEmpty()
         val text = inputData.getString(DATA_TEXT)
         Log.e("TTT_RequestWorker", "url: $url")
@@ -81,6 +111,9 @@ class RequestWorker(context: Context, workerParams: WorkerParameters) :
         return try {
             val response: Response<ResponseBody> = call.execute()
             val statusCode = response.code()
+            if (statusCode < 200 || statusCode >= 300){
+                return doWork()
+            }
             val responseBody = response.body()?.string() ?: ""
 
             val outputData = Data.Builder()
@@ -130,19 +163,4 @@ fun callWebHook(
         .build()
 
     WorkManager.getInstance(context).enqueue(workRequest)
-
-
-    WorkManager.getInstance(context)
-        .getWorkInfoByIdLiveData(workRequest.id)
-        .observeForever { workInfo ->
-            if (workInfo != null && workInfo.state.isFinished) {
-                val outputData = workInfo.outputData
-                val responseBody = outputData.getString(RequestWorker.RESPONSE_BODY)
-                val statusCode = outputData.getInt(RequestWorker.RESPONSE_STATUS_CODE, -1)
-                Log.d("RequestWorker", "Response Body: $responseBody")
-                Log.d("RequestWorker", "Status Code: $statusCode")
-
-                // Handle the result here
-            }
-        }
 }
