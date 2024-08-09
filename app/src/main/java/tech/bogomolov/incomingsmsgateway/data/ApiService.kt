@@ -30,6 +30,7 @@ import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
+import kotlin.math.pow
 
 interface ApiService {
     @Headers("User-agent: SMS Forwarder App")
@@ -112,6 +113,8 @@ class RequestWorker(context: Context, workerParams: WorkerParameters) :
             val response: Response<ResponseBody> = call.execute()
             val statusCode = response.code()
             if (statusCode < 200 || statusCode >= 300){
+                val delayTime = (2.0.pow(runCount.toDouble()) * 1000L).toLong()
+                Thread.sleep(delayTime)
                 return doWork()
             }
             val responseBody = response.body()?.string() ?: ""

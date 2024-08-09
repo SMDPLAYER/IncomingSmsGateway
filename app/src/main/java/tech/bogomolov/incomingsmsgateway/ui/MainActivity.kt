@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
+import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
@@ -50,6 +51,9 @@ class MainActivity : AppCompatActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Включить экран и предотвратить его отключение
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
         setContentView(R.layout.activity_main)
 
         findViewById<FloatingActionButton>(R.id.btnAdd).setOnClickListener {

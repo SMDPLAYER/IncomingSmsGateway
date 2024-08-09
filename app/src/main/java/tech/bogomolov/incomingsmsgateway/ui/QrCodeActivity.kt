@@ -3,6 +3,7 @@ package tech.bogomolov.incomingsmsgateway.ui
 import android.content.Context
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.budiyev.android.codescanner.AutoFocusMode
@@ -39,6 +40,7 @@ class QrCodeActivity : AppCompatActivity() {
         // Callbacks
         codeScanner?.decodeCallback = DecodeCallback {
             runOnUiThread {
+                try {
                 val qrData = JSONObject(it.text)
                if (qrData.getString("type").equals("sms")){
                    val config = populateConfig(
@@ -64,7 +66,9 @@ class QrCodeActivity : AppCompatActivity() {
                }
 
                 finish()
-                Toast.makeText(this, "Scan result: ${it.text}", Toast.LENGTH_LONG).show()
+            }catch (e:Exception) {
+            Log.e("TTT",e.toString())
+        }
             }
         }
         codeScanner?.errorCallback = ErrorCallback { // or ErrorCallback.SUPPRESS
